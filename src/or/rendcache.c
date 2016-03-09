@@ -662,9 +662,9 @@ rend_cache_store_v2_desc_as_dir(const char *desc)
 
     /* Log the received hidden service descriptor */
     if (rend_get_service_id(parsed->pk, service_id)<0) {
-        log_warn(LD_BUG,"Couldn't compute service ID.");
+        log_warn(LD_BUG,"[HS] Couldn't compute service ID.");
     }
-    log_notice(LD_REND, "New v2 HS desc: DESC_ID %s SERVICE_ID %s",
+    log_notice(LD_REND, "[HS] New v2 HS desc: DESC_ID %s SERVICE_ID %s",
                safe_str_client(desc_id_base32), safe_str_client(service_id));
 
     log_notice(LD_DESCRIPTOR, "\n-----DESCRIPTOR-----\n%.*s\n-----END DESCRIPTOR-----",
@@ -790,7 +790,7 @@ rend_cache_store_v2_desc_as_service(const char *desc)
   }
 
     /* Log the received hidden service descriptor */
-  log_notice(LD_REND, "Got a new v0 hidden service descriptor to store, SERVICE_ID '%s'", 
+  log_notice(LD_REND, "[HS] Got a new v0 hidden service descriptor to store, SERVICE_ID '%s'",
 		  safe_str_client(service_id));
   /* Do we already have a newer descriptor? Allow new descriptors with a
      rounded timestamp equal to or newer than the current descriptor */
