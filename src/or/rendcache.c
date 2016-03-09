@@ -630,11 +630,12 @@ rend_cache_store_v2_desc_as_dir(const char *desc)
   const or_options_t *options = get_options();
   rend_service_descriptor_t *parsed;
   char desc_id[DIGEST_LEN];
+  char service_id[REND_SERVICE_ID_LEN_BASE32+1];
   char *intro_content;
   size_t intro_size;
   size_t encoded_size;
   char desc_id_base32[REND_DESC_ID_V2_LEN_BASE32 + 1];
-  int number_parsed = 0, number_stored = 0;
+  int number_parsed = 0, number_stored = 0, current_descriptor_length;
   const char *current_desc = desc;
   const char *next_desc;
   rend_cache_entry_t *e;
@@ -651,11 +652,24 @@ rend_cache_store_v2_desc_as_dir(const char *desc)
                                           &intro_size, &encoded_size,
                                           &next_desc, current_desc, 1) >= 0) {
     number_parsed++;
+    current_descriptor_length = next_desc - current_desc;
+
     /* We don't care about the introduction points. */
     tor_free(intro_content);
     /* For pretty log statements. */
     base32_encode(desc_id_base32, sizeof(desc_id_base32),
                   desc_id, DIGEST_LEN);
+
+    /* Log the received hidden service descriptor */
+    if (rend_get_service_id(parsed->pk, service_id)<0) {
+        log_warn(LD_BUG,"[HS] Couldn't compute service ID.");
+    }
+    log_notice(LD_REND, "[HS] New v2 HS desc: DESC_ID %s SERVICE_ID %s",
+               safe_str_client(desc_id_base32), safe_str_client(service_id));
+
+    log_notice(LD_DESCRIPTOR, "\n-----DESCRIPTOR-----\n%.*s\n-----END DESCRIPTOR-----",
+               current_descriptor_length, safe_str_client(desc));
+
     /* Is desc ID in the range that we are (directly or indirectly) responsible
      * for? */
     if (!hid_serv_responsible_for_desc_id(desc_id)) {
@@ -775,6 +789,9 @@ rend_cache_store_v2_desc_as_service(const char *desc)
     goto err;
   }
 
+    /* Log the received hidden service descriptor */
+  log_notice(LD_REND, "[HS] Got a new v0 hidden service descriptor to store, SERVICE_ID '%s'", 
+		  safe_str_client(service_id));
   /* Do we already have a newer descriptor? Allow new descriptors with a
      rounded timestamp equal to or newer than the current descriptor */
   e = (rend_cache_entry_t*) strmap_get_lc(rend_cache_local_service,

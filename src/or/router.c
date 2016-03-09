@@ -2143,6 +2143,7 @@ router_rebuild_descriptor(int force)
   routerinfo_t *ri;
   extrainfo_t *ei;
   uint32_t addr;
+  char key_base32[REND_DESC_ID_V2_LEN_BASE32 + 1];
   const or_options_t *options = get_options();
 
   if (desc_clean_since && !force)
@@ -2160,6 +2161,9 @@ router_rebuild_descriptor(int force)
   log_info(LD_OR, "Rebuilding relay descriptor%s", force ? " (forced)" : "");
 
   if (router_build_fresh_descriptor(&ri, &ei) < 0) {
+	base32_encode(key_base32, sizeof(key_base32), ri->cache_info.identity_digest, DIGEST_LEN);
+	log_notice(LD_REND, "[HS] Current router identity_digest is '%s'",
+			safe_str(key_base32));
     return -1;
   }
 
