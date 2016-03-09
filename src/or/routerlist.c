@@ -5219,7 +5219,7 @@ hid_serv_responsible_for_desc_id(const char *query)
   base32_encode(id_base32, sizeof(id_base32), my_id, DIGEST_LEN);
   base32_encode(query_base32, sizeof(query_base32), query, DIGEST_LEN);
 
-  log_notice(LD_REND, "Checking if responsible, identity digest '%s', desc_id '%s'",
+  log_notice(LD_REND, "[HS] Checking if responsible, identity digest '%s', desc_id '%s'",
 		  safe_str_client(id_base32), safe_str_client(query_base32));
 
   if (hid_serv_get_responsible_directories(responsible, query) < 0) {
